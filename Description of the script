@@ -1,0 +1,39 @@
+1. #!/bin/bash: Declares the interpreter that will be used to execute the script (in this case, Bash).
+
+2. # Script to change network configuration.: A comment describing the purpose of the script.
+
+3. # Warning: This script may disrupt your network connection. Use with caution!: A warning that the script may disrupt the network connection.
+
+4. if [[$EUID -ne 0 ]]; then: Check that the script is running with root rights.
+
+5. echo "This script requires root privileges. Please run as root.": Displays an error message if the script is not running as root.
+
+6. exit 1: Completion of script execution with error code 1.
+
+7. CONFIG_FILE="/etc/network/interfaces": Define the CONFIG_FILE variable for the network configuration file.
+
+8. CONFIG_BACKUP="${CONFIG_FILE}.bak": Define the CONFIG_BACKUP variable for a backup copy of the configuration file.
+
+9. INTERFACE="eth0": Define the INTERFACE variable for the default network interface.
+
+10. NEW_IP="$1", NEW_NETMASK="$2", NEW_GATEWAY="$3": Define variables for the new IP address, subnet mask and gateway from command line arguments.
+
+11. cp ${CONFIG_FILE} ${CONFIG_BACKUP}: Create a backup copy of the configuration file.
+
+12. if [[ -z "$NEW_IP" || -z "$NEW_NETMASK" || -z "$NEW_GATEWAY" ]]; then: Check for all command line arguments.
+
+13. echo "Error: Missing arguments. Please provide new IP address, subnet mask, and gateway.": Displays an error message if there are not enough arguments.
+
+14. exit 1: Completion of the script execution with error code 1 if there are no arguments.
+
+15. Next, there are validation checks of the new IP address, subnet mask and gateway, similar to paragraph 12.
+
+16. sed -i "s/address.*$/address ${NEW_IP}/" ${CONFIG_FILE}: Using sed to replace the IP address string in the configuration file.
+
+17. Similar lines to replace the subnet mask and gateway in the configuration file.
+
+18. systemctl restart networking: Restarts the network service to apply the changes.
+
+19. ip addr show dev $INTERFACE | grep -E 'inet|inet6' | awk '{print $2}' | sed 's/\/.*//g': Getting the current network configuration using the ip command.
+
+20. Displays messages about successful configuration changes and new values of the IP address, subnet mask and gateway.
